@@ -1,68 +1,77 @@
-// Referencias sliders
-const red = document.getElementById('red');
-const green = document.getElementById('green');
-const blue = document.getElementById('blue');
+const red = document.getElementById("red");
+const green = document.getElementById("green");
+const blue = document.getElementById("blue");
 
-// Inputs numéricos
-const inputRed = document.getElementById('inputRed');
-const inputGreen = document.getElementById('inputGreen');
-const inputBlue = document.getElementById('inputBlue');
+const redInput = document.getElementById("redInput");
+const greenInput = document.getElementById("greenInput");
+const blueInput = document.getElementById("blueInput");
 
-// Otros elementos
-const colorBox = document.getElementById('colorBox');
-const hexCode = document.getElementById('hexCode');
-const headerColor = document.getElementById('headerColor');
-const copyBtn = document.getElementById('copyBtn');
+const colorPicker = document.getElementById("colorPicker");
+const colorBox = document.getElementById("colorBox");
+const rgbText = document.getElementById("rgbText");
+const hexText = document.getElementById("hexText");
 
-// Actualizar color
-function updateColor() {
-  const r = parseInt(red.value);
-  const g = parseInt(green.value);
-  const b = parseInt(blue.value);
+// Función para actualizar color
+function updateColor(r, g, b) {
+  const color = `rgb(${r}, ${g}, ${b})`;
+  const hex = rgbToHex(r, g, b);
+
+  // Actualizar cuadro y textos
+  colorBox.style.backgroundColor = color;
+  rgbText.textContent = color;
+  hexText.textContent = hex;
 
   // Sincronizar inputs
-  inputRed.value = r;
-  inputGreen.value = g;
-  inputBlue.value = b;
-
-  // Aplicar colores
-  const rgbColor = `rgb(${r}, ${g}, ${b})`;
-  colorBox.style.backgroundColor = rgbColor;
-  headerColor.style.backgroundColor = rgbColor;
-
-  // Hex
-  const hex = "#" +
-    r.toString(16).padStart(2, '0') +
-    g.toString(16).padStart(2, '0') +
-    b.toString(16).padStart(2, '0');
-
-  hexCode.textContent = hex.toUpperCase();
-}
-
-// Actualizar desde inputs numéricos
-function updateFromInputs() {
-  const r = Math.min(255, Math.max(0, parseInt(inputRed.value) || 0));
-  const g = Math.min(255, Math.max(0, parseInt(inputGreen.value) || 0));
-  const b = Math.min(255, Math.max(0, parseInt(inputBlue.value) || 0));
-
   red.value = r;
   green.value = g;
   blue.value = b;
-
-  updateColor();
+  redInput.value = r;
+  greenInput.value = g;
+  blueInput.value = b;
+  colorPicker.value = hex;
 }
 
-// Copiar código al portapapeles
-copyBtn.addEventListener('click', () => {
-  navigator.clipboard.writeText(hexCode.textContent).then(() => {
-    copyBtn.textContent = "✅ Copiado";
-    setTimeout(() => copyBtn.textContent = "📋 Copiar", 2000);
+// Convertir RGB a HEX
+function rgbToHex(r, g, b) {
+  return (
+    "#" +
+    [r, g, b]
+      .map((x) => {
+        const hex = parseInt(x).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      })
+      .join("")
+  );
+}
+
+// Convertir HEX a RGB
+function hexToRgb(hex) {
+  let bigint = parseInt(hex.slice(1), 16);
+  let r = (bigint >> 16) & 255;
+  let g = (bigint >> 8) & 255;
+  let b = bigint & 255;
+  return [r, g, b];
+}
+
+// Eventos sliders
+[red, green, blue].forEach((slider) => {
+  slider.addEventListener("input", () => {
+    updateColor(red.value, green.value, blue.value);
   });
 });
 
-// Eventos
-[red, green, blue].forEach(slider => slider.addEventListener('input', updateColor));
-[inputRed, inputGreen, inputBlue].forEach(input => input.addEventListener('input', updateFromInputs));
+// Eventos inputs numéricos
+[redInput, greenInput, blueInput].forEach((input) => {
+  input.addEventListener("input", () => {
+    updateColor(redInput.value, greenInput.value, blueInput.value);
+  });
+});
+
+// Evento color picker
+colorPicker.addEventListener("input", () => {
+  const [r, g, b] = hexToRgb(colorPicker.value);
+  updateColor(r, g, b);
+});
 
 // Inicializar
-updateColor();
+updateColor(0, 0, 0);
